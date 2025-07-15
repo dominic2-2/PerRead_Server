@@ -37,18 +37,21 @@ namespace PerRead_Server.Controllers
                         b.Title.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
                         b.Summary.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
                         b.ISBN.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
-                        b.Language.Contains(keyword, StringComparison.OrdinalIgnoreCase)) &&
-
-                    (authorIds == null || authorIds.Count == 0 || b.AuthorIds.Any(id => authorIds.Contains(id))) &&
-                    (string.IsNullOrEmpty(publisherId) || b.PublisherId == publisherId) &&
-                    (categoryIds == null || categoryIds.Count == 0 || b.CategoryIds.Any(id => categoryIds.Contains(id))) &&
+                        b.Language.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+                        (b.Authors != null && b.Authors.Any(a => a.Name.Contains(keyword, StringComparison.OrdinalIgnoreCase))) ||
+                        (b.Categories != null && b.Categories.Any(c => c.Name.Contains(keyword, StringComparison.OrdinalIgnoreCase))) ||
+                        (b.Publisher != null && b.Publisher.Name.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                    ) &&
+                    (authorIds == null || authorIds.Count == 0 || (b.Authors != null && b.Authors.Any(a => authorIds.Contains(a.Id)))) &&
+                    (string.IsNullOrEmpty(publisherId) || (b.Publisher != null && b.Publisher.Id == publisherId)) &&
+                    (categoryIds == null || categoryIds.Count == 0 || (b.Categories != null && b.Categories.Any(c => categoryIds.Contains(c.Id)))) &&
                     (!availability.HasValue || b.Availability == availability.Value) &&
                     (!priceMin.HasValue || b.Price >= priceMin.Value) &&
                     (!priceMax.HasValue || b.Price <= priceMax.Value)
                 )
                 .AsQueryable();
 
-            IOrderedQueryable<Book>? orderedQuery = null;
+            IOrderedQueryable<BookDetailDTO>? orderedQuery = null;
 
             if (sort != null && sort.Count > 0)
             {
@@ -90,7 +93,7 @@ namespace PerRead_Server.Controllers
             }
 
             var total = orderedQuery?.Count() ?? 0;
-            var paged = (orderedQuery ?? Enumerable.Empty<Book>().AsQueryable())
+            var paged = (orderedQuery ?? Enumerable.Empty<BookDetailDTO>().AsQueryable())
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();

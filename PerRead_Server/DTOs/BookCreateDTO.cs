@@ -14,7 +14,7 @@
         public string CoverUrl { get; set; } = string.Empty;
         public string FileUrl { get; set; } = string.Empty;
         public long FileSize { get; set; }
-        public decimal Price { get; set; }
+        public int Price { get; set; }
         public bool Availability { get; set; }
         public List<string> Tags { get; set; } = new();
     }

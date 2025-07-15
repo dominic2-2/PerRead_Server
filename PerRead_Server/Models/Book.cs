@@ -45,7 +45,7 @@ namespace PerRead_Server.Models
         public long FileSize { get; set; }
 
         [FirestoreProperty("price")]
-        public decimal Price { get; set; }
+        public int Price { get; set; }
 
         [FirestoreProperty("availability")]
         public bool Availability { get; set; }

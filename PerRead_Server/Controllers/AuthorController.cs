@@ -83,5 +83,13 @@ namespace PerRead_Server.Controllers
             var deleted = await _service.DeleteAsync(id);
             return deleted ? Ok() : NotFound();
         }
+
+        [HttpGet("list")]
+        public async Task<IActionResult> GetAuthors()
+        {
+            var all = await _service.GetAllAsync();
+            var result = all.Select(a => new { a.Id, a.Name, a.BirthYear });
+            return Ok(result);
+        }
     }
 }
