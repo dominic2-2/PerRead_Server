@@ -24,10 +24,10 @@ namespace PerRead_Server.Models
         public int? DeathYear { get; set; }
 
         [FirestoreProperty("created_at")]
-        public Timestamp? CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
 
         [FirestoreProperty("updated_at")]
-        public Timestamp? UpdatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
 
     }
 }

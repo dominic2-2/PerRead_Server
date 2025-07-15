@@ -49,13 +49,16 @@ namespace PerRead_Server.Services
             if (exists.Count > 0)
                 return null;
 
+            var now = DateTime.UtcNow;
             var pub = new Publisher
             {
                 Name = normalizedName,
                 Address = dto.Address,
                 Website = dto.Website,
                 Email = dto.Email,
-                Phone = dto.Phone
+                Phone = dto.Phone,
+                CreatedAt = now,
+                UpdatedAt = now
             };
 
             var added = await _publishers.AddAsync(pub);
@@ -85,8 +88,13 @@ namespace PerRead_Server.Services
                 Address = dto.Address,
                 Website = dto.Website,
                 Email = dto.Email,
-                Phone = dto.Phone
+                Phone = dto.Phone,
+                UpdatedAt = DateTime.UtcNow
             };
+
+            // Preserve CreatedAt if exists
+            var existing = snapshot.ConvertTo<Publisher>();
+            pub.CreatedAt = existing.CreatedAt;
 
             await doc.SetAsync(pub, SetOptions.Overwrite);
             pub.Id = id;

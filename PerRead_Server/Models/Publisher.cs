@@ -22,5 +22,11 @@ namespace PerRead_Server.Models
 
         [FirestoreProperty("phone")]
         public string? Phone { get; set; }
+
+        [FirestoreProperty("created_at")]
+        public DateTime? CreatedAt { get; set; }
+
+        [FirestoreProperty("updated_at")]
+        public DateTime? UpdatedAt { get; set; }
     }
 }

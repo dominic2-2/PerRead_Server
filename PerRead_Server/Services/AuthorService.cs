@@ -59,8 +59,8 @@ namespace PerRead_Server.Services
                 Email = dto.Email,
                 BirthYear = dto.BirthYear,
                 DeathYear = dto.DeathYear,
-                CreatedAt = Timestamp.FromDateTime(DateTime.UtcNow),
-                UpdatedAt = Timestamp.FromDateTime(DateTime.UtcNow)
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
             };
 
             var added = await _authors.AddAsync(author);
@@ -88,7 +88,7 @@ namespace PerRead_Server.Services
             if (isDuplicate)
                 return null;
 
-            var createdAt = snapshot.GetValue<Timestamp?>("created_at") ?? Timestamp.FromDateTime(DateTime.UtcNow);
+            var createdAt = snapshot.GetValue<DateTime?>("created_at") ?? DateTime.UtcNow;
 
             var author = new Author
             {
@@ -98,7 +98,7 @@ namespace PerRead_Server.Services
                 BirthYear = dto.BirthYear,
                 DeathYear = dto.DeathYear,
                 CreatedAt = createdAt,
-                UpdatedAt = Timestamp.FromDateTime(DateTime.UtcNow)
+                UpdatedAt = DateTime.UtcNow
             };
 
             await docRef.SetAsync(author, SetOptions.Overwrite);

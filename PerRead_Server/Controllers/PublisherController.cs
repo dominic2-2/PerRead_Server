@@ -39,6 +39,8 @@ namespace PerRead_Server.Controllers
             filtered = sort switch
             {
                 "name" => desc ? filtered.OrderByDescending(p => p.Name).ToList() : filtered.OrderBy(p => p.Name).ToList(),
+                "updated_at" => desc ? filtered.OrderByDescending(c => c.UpdatedAt).ToList() : filtered.OrderBy(c => c.UpdatedAt).ToList(),
+                "created_at" => desc ? filtered.OrderByDescending(c => c.CreatedAt).ToList() : filtered.OrderBy(c => c.CreatedAt).ToList(),
                 _ => filtered
             };
 
