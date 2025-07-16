@@ -61,8 +61,23 @@ namespace PerRead_Server.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(UserDTO user)
         {
-            var created = await _users.CreateAsync(user);
-            return Ok(created);
+            try
+            {
+                var created = await _users.CreateAsync(user);
+                return Ok(created);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An unexpected error occurred.", detail = ex.Message });
+            }
         }
 
         [HttpPut("{id}")]

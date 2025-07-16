@@ -1,4 +1,5 @@
 ﻿using Google.Cloud.Firestore;
+using Microsoft.AspNetCore.Identity;
 using PerRead_Server.DTOs;
 using PerRead_Server.Models;
 
@@ -38,10 +39,17 @@ namespace PerRead_Server.Services
 
         public async Task<User> CreateAsync(UserDTO userDto)
         {
+            var existingUser = await _db.Collection("users")
+                                        .WhereEqualTo("email", userDto.Email)
+                                        .Limit(1)
+                                        .GetSnapshotAsync();
+
+            if (existingUser.Count > 0)
+                throw new InvalidOperationException("Email already exists.");
+
             var user = new User
             {
                 Email = userDto.Email ?? "",
-                PasswordHash = userDto.PasswordHash ?? "",
                 FullName = userDto.FullName ?? "",
                 AvatarUrl = userDto.AvatarUrl ?? "",
                 Role = userDto.Role ?? "User",
@@ -51,6 +59,12 @@ namespace PerRead_Server.Services
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
+
+            if (string.IsNullOrWhiteSpace(userDto.PasswordHash))
+                throw new ArgumentException("Password is required.");
+
+            var hasher = new PasswordHasher<User>();
+            user.PasswordHash = hasher.HashPassword(user, userDto.PasswordHash);
 
             var added = await _db.Collection("users").AddAsync(user);
             user.Id = added.Id;

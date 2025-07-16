@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
 using PerRead_Server.Services;
 using System.ComponentModel.DataAnnotations;
+using PerRead_Server.Models;
 
 namespace PerRead_Server.Controllers
 {
@@ -20,9 +22,15 @@ namespace PerRead_Server.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var user = await _auth.AuthenticateAsync(request.Email, request.PasswordHash);
+            var user = await _auth.GetUserByEmailAsync(request.Email);
 
-            if (user == null)
+            if (user == null || !user.IsActive)
+                return Unauthorized(new { message = "Invalid credentials or inactive user." });
+
+            var hasher = new PasswordHasher<User>();
+            var result = hasher.VerifyHashedPassword(user, user.PasswordHash, request.PasswordHash);
+
+            if (result == PasswordVerificationResult.Failed)
                 return Unauthorized(new { message = "Invalid credentials or inactive user." });
 
             var token = _auth.GenerateJwt(user);

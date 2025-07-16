@@ -18,12 +18,11 @@ namespace PerRead_Server.Services
             _config = config;
         }
 
-        public async Task<User?> AuthenticateAsync(string email, string passwordHash)
+        public async Task<User?> GetUserByEmailAsync(string email)
         {
             var query = await _db.Collection("users")
                                  .WhereEqualTo("email", email)
-                                 .WhereEqualTo("password_hash", passwordHash)
-                                 .WhereEqualTo("is_active", true)
+                                 .Limit(1)
                                  .GetSnapshotAsync();
 
             var doc = query.Documents.FirstOrDefault();
@@ -54,6 +53,5 @@ namespace PerRead_Server.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
     }
 }
