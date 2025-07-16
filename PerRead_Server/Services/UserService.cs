@@ -73,9 +73,28 @@ namespace PerRead_Server.Services
 
         public async Task<User?> UpdateAsync(string id, User user)
         {
-            user.UpdatedAt = DateTime.UtcNow;
-            await _db.Collection("users").Document(id).SetAsync(user, SetOptions.Overwrite);
+            var docRef = _db.Collection("users").Document(id);
+            var snapshot = await docRef.GetSnapshotAsync();
+
+            if (!snapshot.Exists) return null;
+
+            var existing = snapshot.ConvertTo<User>();
+            if (existing == null) return null;
+
+            if (!string.IsNullOrWhiteSpace(user.PasswordHash) && user.PasswordHash != existing.PasswordHash)
+            {
+                user.PasswordHash = new PasswordHasher<User>().HashPassword(user, user.PasswordHash);
+            }
+            else
+            {
+                user.PasswordHash = existing.PasswordHash;
+            }
+
             user.Id = id;
+            user.CreatedAt = existing.CreatedAt;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await docRef.SetAsync(user, SetOptions.Overwrite);
             return user;
         }
 
