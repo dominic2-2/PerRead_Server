@@ -93,5 +93,28 @@ namespace PerRead_Server.Controllers
             var result = await _users.DeleteAsync(id);
             return result ? NoContent() : NotFound();
         }
+
+        [HttpPatch("{id}/profile")]
+        public async Task<IActionResult> UpdateProfile(string id, [FromBody] ProfileUpdateDTO dto)
+        {
+            var user = await _users.GetByIdAsync(id);
+            if (user == null)
+                return NotFound(new { message = "User not found" });
+
+            if (!string.IsNullOrWhiteSpace(dto.FullName))
+                user.FullName = dto.FullName;
+
+            if (!string.IsNullOrWhiteSpace(dto.AvatarUrl))
+                user.AvatarUrl = dto.AvatarUrl;
+
+            if (!string.IsNullOrWhiteSpace(dto.Email))
+                user.Email = dto.Email;
+
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _users.UpdateAsync(id, user);
+            return Ok(user);
+        }
+
     }
 }

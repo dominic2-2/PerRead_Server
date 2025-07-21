@@ -1,4 +1,7 @@
-﻿using Google.Cloud.Firestore;
+﻿using Google.Apis.Auth.OAuth2;
+using Google.Cloud.Firestore;
+using Google.Cloud.Firestore.V1;
+using System.Text;
 
 namespace PerRead_Server.Services
 {
@@ -8,13 +11,21 @@ namespace PerRead_Server.Services
 
         public FirestoreService(IConfiguration config)
         {
-            var keyPath = Path.Combine(AppContext.BaseDirectory, "firebase-key.json");
+            var base64Json = Environment.GetEnvironmentVariable("FIREBASE_CREDENTIAL_BASE64");
 
-            if (!File.Exists(keyPath))
-                throw new FileNotFoundException($"Firebase key not found at {keyPath}");
+            if (string.IsNullOrEmpty(base64Json))
+                throw new InvalidOperationException("Firebase credential not found in environment variables.");
 
-            Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", keyPath);
-            Db = FirestoreDb.Create("perread-aa3dd");
+            var jsonBytes = Convert.FromBase64String(base64Json);
+            var credential = GoogleCredential.FromJson(Encoding.UTF8.GetString(jsonBytes));
+
+            var clientBuilder = new FirestoreClientBuilder
+            {
+                Credential = credential
+            };
+            var firestoreClient = clientBuilder.Build();
+
+            Db = FirestoreDb.Create("perread-aa3dd", firestoreClient);
         }
     }
 }

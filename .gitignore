@@ -364,3 +364,7 @@ FodyWeavers.xsd
 
 # Firebase key file for PerRead Server
 PerRead_Server/firebase-key.json
+
+PerRead_Server/appsettings.json
+
+PerRead_Server/Properties/launchSettings.json

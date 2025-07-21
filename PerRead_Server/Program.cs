@@ -19,6 +19,10 @@ namespace PerRead_Server
             builder.Services.AddScoped<CategoryService>();
             builder.Services.AddScoped<AuthorService>();
             builder.Services.AddScoped<PublisherService>();
+            builder.Services.AddScoped<EmailService>();
+            builder.Services.AddScoped<OTPService>();
+
+            builder.Services.AddMemoryCache();
 
             builder.Services.AddCors(options =>
             {
@@ -43,7 +47,7 @@ namespace PerRead_Server
                     ValidIssuer = jwtSettings["Issuer"],
                     ValidAudience = jwtSettings["Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(jwtSettings["Key"]!))
+                        Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_KEY")!))
                 };
             });
 
@@ -51,15 +55,19 @@ namespace PerRead_Server
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 
+            builder.Services.AddSwaggerGen(); // Swagger configuration
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
+                app.UseSwagger(); // Swagger configuration
+                app.UseSwaggerUI(); // Swagger configuration
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseCors();
 

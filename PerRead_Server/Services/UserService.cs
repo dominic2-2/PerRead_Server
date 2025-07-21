@@ -80,12 +80,8 @@ namespace PerRead_Server.Services
 
             var existing = snapshot.ConvertTo<User>();
             if (existing == null) return null;
-
-            if (!string.IsNullOrWhiteSpace(user.PasswordHash) && user.PasswordHash != existing.PasswordHash)
-            {
-                user.PasswordHash = new PasswordHasher<User>().HashPassword(user, user.PasswordHash);
-            }
-            else
+            
+            if (string.IsNullOrWhiteSpace(user.PasswordHash))
             {
                 user.PasswordHash = existing.PasswordHash;
             }
